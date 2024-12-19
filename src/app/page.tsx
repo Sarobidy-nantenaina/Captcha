@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect, useCallback } from "react";
 
@@ -14,7 +14,7 @@ function Home() {
     const script = document.createElement("script");
     script.src =
       "https://b82b1763d1c3.eu-west-3.captcha-sdk.awswaf.com/b82b1763d1c3/jsapi.js";
-    script.async = true;
+    script.defer = true; // Changed from async to defer for correct script loading
     script.onload = () => {
       // Initialize CAPTCHA once the script is loaded
       if (window.AwsWafIntegration) {
@@ -22,6 +22,10 @@ function Home() {
           onCaptchaSuccess: () => {
             setCaptchaSolved(true);
             setCaptchaRequired(false);
+          },
+          onCaptchaError: () => {
+            setCaptchaSolved(false);
+            setCaptchaRequired(true);
           },
         });
       }
@@ -45,8 +49,7 @@ function Home() {
       });
       if (!response.ok) {
         if (response.status === 405) {
-          setCaptchaRequired(true);
-          loadCaptchaScript(); // Load CAPTCHA script immediately after setting captchaRequired to true
+          setCaptchaRequired(true); // Trigger CAPTCHA requirement after HTTP 405 response
           return;
         } else if (response.status === 403) {
           setForbiddenCount((prev) => prev + 1);
@@ -110,7 +113,7 @@ function Home() {
       }}
     >
       <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#7B61FF] to-[#FF47B4]">
-        CAPTCHA DEMO
+        CAPTCHA 
       </h1>
 
       <div
@@ -178,7 +181,7 @@ function Home() {
 
             {captchaRequired && !captchaSolved && (
               <div className="mt-4">
-                <div id="captcha-container"></div>
+                <div id="captcha-container"></div> {/* CAPTCHA will be rendered here */}
               </div>
             )}
           </>
